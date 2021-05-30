@@ -25,7 +25,7 @@ class Test(TestCase):
 
     def test_save_image(self):
         from m3_save_images.m3_save_images import save_images
-        folder_destination_name = "Unittest_SortedImages"
+        folder_destination_name = "unittest-sorted-images"
         path_source = "../img"
         image_name = ["00ff00.png", "aqua.png", "black.jpg", "yellow.png", "red2.jpg", "green.jpg"]
         image_color = ["Lime", "Aqua", "Black", "Yellow", "Red", "Green"]
