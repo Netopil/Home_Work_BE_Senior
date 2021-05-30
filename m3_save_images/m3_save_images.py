@@ -46,11 +46,11 @@ def save_images(folder_destination_name, path_source, image_name, image_color):
 
 def save_sorted_images():
     import pika
-    file_sorted_images_name = "..\SortedImagesCommunication"
+    file_sorted_images_name = "docker-shared/sorted-images-communication"
     queue_name = "m2_compute_to_m3_save_images"
 
     # establishing connection
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='host.docker.internal'))
     channel = connection.channel()
 
     # creating queue
@@ -62,9 +62,13 @@ def save_sorted_images():
         received_webcolor_path_image_name = body.decode('utf8')
         print(" [x] Received:", received_webcolor_path_image_name, " => running module3")
         webcolor_path_image_name = received_webcolor_path_image_name.split(";")
-        check_color_and_image_input(webcolor_path_image_name[1], webcolor_path_image_name[2], webcolor_path_image_name[0])
-        save_images(file_sorted_images_name, webcolor_path_image_name[1], webcolor_path_image_name[2], webcolor_path_image_name[0])
-        print("=> Imaged", webcolor_path_image_name[2], "saved to", os.path.join(file_sorted_images_name, webcolor_path_image_name[0], webcolor_path_image_name[2]))
+        webcolor_path_image_name[1] = "docker-shared/" + webcolor_path_image_name[1]
+        check_color_and_image_input(webcolor_path_image_name[1], webcolor_path_image_name[2],
+                                    webcolor_path_image_name[0])
+        save_images(file_sorted_images_name, webcolor_path_image_name[1], webcolor_path_image_name[2],
+                    webcolor_path_image_name[0])
+        print("=> Imaged", webcolor_path_image_name[2], "saved to",
+              os.path.join(file_sorted_images_name, webcolor_path_image_name[0], webcolor_path_image_name[2]))
         print("=> Module 3 finished...")
         print(' [*] Waiting for messages. To exit press CTRL+C')
 
@@ -74,6 +78,7 @@ def save_sorted_images():
     # Waits for data and runs callbacks whenever necessary
     print(' [*] Waiting for messages. To exit press CTRL+C')
     channel.start_consuming()
+
 
 if __name__ == '__main__':
     try:

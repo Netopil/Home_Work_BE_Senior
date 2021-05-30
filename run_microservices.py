@@ -1,6 +1,6 @@
 import pika
 
-message_path = '..\img'
+message_path = 'img'
 message = bytes(message_path, 'utf8')
 queue_name = "path_module1"
 

@@ -88,7 +88,7 @@ def get_image_web_color():
     queue_name = "m1_get_files_to_m2_compute"
 
     # establishing connection
-    connection = pika.BlockingConnection(pika.ConnectionParameters(host='localhost'))
+    connection = pika.BlockingConnection(pika.ConnectionParameters(host='host.docker.internal'))
     channel = connection.channel()
 
     # creating queue
@@ -100,6 +100,8 @@ def get_image_web_color():
         received_path_image_name = body.decode('utf8')
         print(" [x] Received:", received_path_image_name, " => running module2")
         path_image_name = received_path_image_name.split(";")
+        path_image_name_relative = path_image_name[0]
+        path_image_name[0] = "docker-shared/" + path_image_name[0]
         # valid inputs, compute webcolor for the image
         check_path_and_img_input(path_image_name[0], path_image_name[1])
         image_24bit = ImageWebColor(path_image_name[0], path_image_name[1])
@@ -109,7 +111,7 @@ def get_image_web_color():
         queue_m2_to_m3 = "m2_compute_to_m3_save_images"
         channel.queue_declare(queue=queue_m2_to_m3)
 
-        webcolor_path_image_name = [selected_webcolor, path_image_name[0], path_image_name[1]]
+        webcolor_path_image_name = [selected_webcolor, path_image_name_relative, path_image_name[1]]
         webcolor_path_image_name = ';'.join([str(elem) for elem in webcolor_path_image_name])
         message_webcolor_path_image_name = bytes(webcolor_path_image_name, 'utf8')
         # send message
