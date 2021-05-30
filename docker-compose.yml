@@ -1,0 +1,20 @@
+version: "3.2"
+services:
+  m1_get_files:
+    build: m1_get_files
+    image: m1-get-files
+    container_name: 'm1-get-files-container'
+    volumes:
+        - .\docker-shared:/app/docker-shared
+  m2_compute:
+    build: .\m2_compute
+    image: m2-compute
+    container_name: 'm2-compute-container'
+    volumes:
+        - .\docker-shared:/app/docker-shared 
+  m3_save_images:
+    build: .\m3_save_images
+    image: m3-save-images
+    container_name: 'm3-save-images-container'
+    volumes:
+        - .\docker-shared:/app/docker-shared   
