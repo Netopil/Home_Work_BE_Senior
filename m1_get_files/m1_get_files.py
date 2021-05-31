@@ -81,10 +81,11 @@ def load_send_files():
     #  Receiving messages from the queue - subscribing a callback function to a queue
     def callback(ch, method, properties, body):
         #  Receiving message
-        image_path_relative = body.decode('utf8')
-        print(" [x] Received:", image_path_relative, " => running module1")
-        image_path = "docker-shared/" + image_path_relative
-        file_list = get_file_names(image_path)
+        image_path_relative_extensions = body.decode('utf8')
+        print(" [x] Received:", image_path_relative_extensions, " => running module1")
+        image_path_relative_extensions = image_path_relative_extensions.split(";")
+        image_path = "docker-shared/" + image_path_relative_extensions[0]
+        file_list = get_file_names(image_path, image_path_relative_extensions[1])
         images_in_directory = get_valid_images(image_path, file_list)
         print("=> Valid images in the directory: ", images_in_directory)
 
@@ -93,7 +94,7 @@ def load_send_files():
         channel.queue_declare(queue=queue_m1_to_m2)
         for image_name in images_in_directory:
             #join image path and image name into one message
-            path_image_name = [image_path_relative, image_name]
+            path_image_name = [image_path_relative_extensions[0], image_name]
             path_image_name = ';'.join([str(elem) for elem in path_image_name])
             message_path_image_name = bytes(path_image_name, 'utf8')
             channel.basic_publish(exchange='', routing_key=queue_m1_to_m2, body=message_path_image_name)
