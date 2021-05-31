@@ -4,9 +4,8 @@ import sys
 import cv2
 
 
-# from m1_get_files import load_set_files
 class ImageWebColor:
-    """Class ImageWebColor"""
+    """Selection of webcolor for image"""
 
     def __init__(self, path, image_name, bits_per_color_channel=8):
         """Initialize image name and bits per color channel, read image
@@ -28,9 +27,10 @@ class ImageWebColor:
     def compute_image_color_mean(self):
         """Parameters:
         returns - compute mean color
-        """
 
-        # check image dimensions1
+        Overall description: Compute the arithmetic mean of the image"""
+
+        # check image dimensions, for grayscale images all RGB channels will be same
         if self.image.ndim < 3:
             img_mean_blue_channel = img_mean_green_channel = img_mean_red_channel = np.mean(self.image[:, :])
         else:
@@ -47,13 +47,16 @@ class ImageWebColor:
 
     def select_webcolor_for_image(self):
         """Parameters:
-        img_mean_color - average color value
-        web_colors_definition - define web colors for selection
+        img_mean_color - average color value ||
+        web_colors_definition - define web colors for selection ||
         returns - selected web color for image
+
+        Overall description: Select webcolor for the image
         """
         if not self.mean_color:
             self.compute_image_color_mean()
         web_colors_definition_values = []
+
         # get values form tuple
         for values in self.web_colors_definition:
             web_colors_definition_values.append(values[1])
@@ -65,12 +68,13 @@ class ImageWebColor:
         smallest_distance = web_colors[smallest_distance_index]
         print(self.image_name, self.web_colors_definition[int(smallest_distance_index[0])][0], smallest_distance,
               img_mean_color_np)
+
         # return closest webcolor
         return self.web_colors_definition[int(smallest_distance_index[0])][0]
 
 
 def check_path_and_img_input(path, image_name):
-    """check if image can be read"""
+    """Check if image is valid"""
     try:
         os.listdir(path)
     except OSError as error:
@@ -84,6 +88,10 @@ def check_path_and_img_input(path, image_name):
 
 
 def get_image_web_color():
+    """Establish connection, receive message: path and image name, call validation function,
+    create instance and call methods, send message: webcolor, path and image name"""
+
+
     import pika
     queue_name = "m1_get_files_to_m2_compute"
 
@@ -95,32 +103,34 @@ def get_image_web_color():
     channel.queue_declare(queue=queue_name)
 
     #  Receiving messages from the queue - subscribing a callback function to a queue
-    #  Note: Whenever message is received, this callback function is called by the Pika library
     def callback(ch, method, properties, body):
+        #  Receiving message
         received_path_image_name = body.decode('utf8')
         print(" [x] Received:", received_path_image_name, " => running module2")
         path_image_name = received_path_image_name.split(";")
         path_image_name_relative = path_image_name[0]
         path_image_name[0] = "docker-shared/" + path_image_name[0]
-        # valid inputs, compute webcolor for the image
+
+        # validate inputs, compute webcolor for the image
         check_path_and_img_input(path_image_name[0], path_image_name[1])
         image_24bit = ImageWebColor(path_image_name[0], path_image_name[1])
         selected_webcolor = image_24bit.select_webcolor_for_image()
         print("=> Selected webcolor: ", selected_webcolor, " for image: ", path_image_name[1])
+
         # create message
         queue_m2_to_m3 = "m2_compute_to_m3_save_images"
         channel.queue_declare(queue=queue_m2_to_m3)
-
         webcolor_path_image_name = [selected_webcolor, path_image_name_relative, path_image_name[1]]
         webcolor_path_image_name = ';'.join([str(elem) for elem in webcolor_path_image_name])
         message_webcolor_path_image_name = bytes(webcolor_path_image_name, 'utf8')
+
         # send message
         channel.basic_publish(exchange='', routing_key=queue_m2_to_m3, body=message_webcolor_path_image_name)
         print(" [x] Sent message with webcolor, path, image name:", message_webcolor_path_image_name.decode('utf8'))
         print("=> Module 2 finished...")
         print(' [*] Waiting for messages. To exit press CTRL+C')
 
-    # Tell RabbitMQ that this particular callback function should receive messages from our hello queue
+    # Callback function will receive messages from specified queue
     channel.basic_consume(queue=queue_name, on_message_callback=callback, auto_ack=True)
 
     # Waits for data and runs callbacks whenever necessary

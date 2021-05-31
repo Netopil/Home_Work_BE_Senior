@@ -6,7 +6,7 @@ import os.path
 
 
 def check_color_and_image_input(path, image_name, image_color, web_colors=None):
-    """check if the color input is webcolor and if image is valid image"""
+    """check if the color input is webcolor and image is valid"""
     try:
         os.listdir(path)
     except OSError as error:
@@ -23,7 +23,15 @@ def check_color_and_image_input(path, image_name, image_color, web_colors=None):
 
 
 def save_images(folder_destination_name, path_source, image_name, image_color):
-    """Create folders according image colors and save images to corresponding folders"""
+    """Parameters:
+    folder_destination_name - folder for saving folders with images||
+    path_source - path source of images ||
+    image_name - image name ||
+    image_color - webcolor of image ||
+
+    Overall description: Create folders according image colors and save images to corresponding folders
+    """
+
     # Create folder for sorted images
     try:
         if not os.path.isdir(folder_destination_name):
@@ -45,6 +53,10 @@ def save_images(folder_destination_name, path_source, image_name, image_color):
 
 
 def save_sorted_images():
+    """Establish connection, receive message: webcolor, path and image name,
+    call functions, save image according the color"""
+
+
     import pika
     file_sorted_images_name = "docker-shared/sorted-images-communication"
     queue_name = "m2_compute_to_m3_save_images"
@@ -57,17 +69,19 @@ def save_sorted_images():
     channel.queue_declare(queue=queue_name)
 
     #  Receiving messages from the queue - subscribing a callback function to a queue
-    #  Note: Whenever message is received, this callback function is called by the Pika library
     def callback(ch, method, properties, body):
+        #  Receiving message
         received_webcolor_path_image_name = body.decode('utf8')
         print(" [x] Received:", received_webcolor_path_image_name, " => running module3")
         webcolor_path_image_name = received_webcolor_path_image_name.split(";")
+
+        #  Save images
         webcolor_path_image_name[1] = "docker-shared/" + webcolor_path_image_name[1]
         check_color_and_image_input(webcolor_path_image_name[1], webcolor_path_image_name[2],
                                     webcolor_path_image_name[0])
         save_images(file_sorted_images_name, webcolor_path_image_name[1], webcolor_path_image_name[2],
                     webcolor_path_image_name[0])
-        print("=> Imaged", webcolor_path_image_name[2], "saved to",
+        print("=> Image", webcolor_path_image_name[2], "saved to",
               os.path.join(file_sorted_images_name, webcolor_path_image_name[0], webcolor_path_image_name[2]))
         print("=> Module 3 finished...")
         print(' [*] Waiting for messages. To exit press CTRL+C')
@@ -89,7 +103,3 @@ if __name__ == '__main__':
             sys.exit(0)
         except SystemExit:
             os._exit(0)
-
-    # def save_sorted_images(path_source, image_name, image_color):
-    # check_color_and_image_input(path_source, image_name, image_color)
-    # save_images("SortedImgs", path_source, image_name, image_color)

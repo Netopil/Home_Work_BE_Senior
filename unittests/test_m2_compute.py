@@ -4,6 +4,8 @@ import unittest
 
 class TestImageWebColor(TestCase):
     def test_check_path_and_img_input(self):
+        """Testing module response to valid/invalid path and image """
+
         from m2_compute.m2_compute import check_path_and_img_input
         valid_path = "../img"
         invalid_path = "../imgfab7841"
@@ -17,6 +19,8 @@ class TestImageWebColor(TestCase):
             check_path_and_img_input(invalid_path, valid_image)
 
     def test_compute_color_mean(self):
+        """Testing returned arithmetic mean of the colors per channel in the image"""
+
         from m2_compute.m2_compute import ImageWebColor
         path = "../img"
 
@@ -28,6 +32,8 @@ class TestImageWebColor(TestCase):
         self.assertEqual(ImageWebColor(path, "navy-blue.png").compute_image_color_mean(), [0, 0, 50.19607843137255])
 
     def test_select_webcolor_for_image(self):
+        """Testing returned web color for the specific image"""
+
         from m2_compute.m2_compute import ImageWebColor
         img_color_selection = ImageWebColor("../img", "aqua.jpg")
         img_color_selection.mean_color = [0, 75, 76]

@@ -6,6 +6,8 @@ import shutil
 
 class Test(TestCase):
     def test_check_color_and_image_input(self):
+        """Testing module response to valid/invalid path, image and webcolor"""
+
         from m3_save_images.m3_save_images import check_color_and_image_input
         valid_path = "../img"
         invalid_path = "../imgfab7841"
@@ -24,6 +26,8 @@ class Test(TestCase):
         self.assertTrue(check_color_and_image_input(valid_path, valid_image, valid_image_color) is None)
 
     def test_save_image(self):
+        """Testing created folders and saved image according path, image name and webcolor"""
+
         from m3_save_images.m3_save_images import save_images
         folder_destination_name = "unittest-sorted-images"
         path_source = "../img"

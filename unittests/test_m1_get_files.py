@@ -4,8 +4,10 @@ import unittest
 
 class TestLoadSendImages(TestCase):
     def test_get_file_names(self):
+        """Testing returned list of files according valid/invalid path and extensions"""
+
         from m1_get_files.m1_get_files import get_file_names
-        valid_path = "../img"  # should be set valid path
+        valid_path = "../img"  # set valid path
         invalid_path = "../imgfab7841"
         invalid_extension = "jp871g"
         all_files = ['00ff00.png', 'Aeroklub_otazky.docx', 'aqua.png', 'black.jpg', 'black.png', 'blue.png',
@@ -33,6 +35,8 @@ class TestLoadSendImages(TestCase):
         self.assertTrue(len(get_file_names(invalid_path, "jpg")) == 0)  # folder/path doesn't exist
 
     def test_get_valid_images(self):
+        """Testing returned valid images according valid/invalid path and files"""
+
         from m1_get_files.m1_get_files import get_valid_images
         valid_path = "../img"  # should be set valid path
         invalid_path = "../aba46"  # add
