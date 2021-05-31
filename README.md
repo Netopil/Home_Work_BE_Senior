@@ -1,5 +1,5 @@
 # HomeWork_BE_Senior
-microservices - classify images according color
+Microservices - classifying images according color
 
 ## Installation:
 1) [Install RabitMQ](https://www.rabbitmq.com/install-windows.html)
